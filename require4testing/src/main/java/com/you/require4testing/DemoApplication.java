@@ -15,12 +15,14 @@ public class DemoApplication {
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
     }
-
+    // 已注释：PasswordEncoder 现在在 SecurityConfig.java 中定义
+    /*
     // Adding a Password Encoder Bean
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
     }
+    */
 
     // Add CommandLineRunner to initialize data
     @Bean
