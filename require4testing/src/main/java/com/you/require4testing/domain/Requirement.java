@@ -1,15 +1,19 @@
 package com.you.require4testing.domain;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.*;
-
 import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "requirements")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Requirement {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
