@@ -30,6 +30,12 @@ public class TestRunAssignmentController {
         TestCase tc = caseRepo.findById(a.getTestCase().getId())
                 .orElseThrow(() -> new RuntimeException("TestCase not found"));
 
+        // Check for duplicate assignment
+        boolean exists = repo.existsByTestRunAndTestCase(tr, tc);
+        if (exists) {
+            throw new RuntimeException("This TestCase already assigned to this TestRun");
+        }
+        
         a.setTestRun(tr);
         a.setTestCase(tc);
         a.setExecutedAt(OffsetDateTime.now());
