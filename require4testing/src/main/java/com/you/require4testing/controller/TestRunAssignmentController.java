@@ -6,7 +6,9 @@ import com.you.require4testing.domain.TestRunAssignment;
 import com.you.require4testing.repository.TestCaseRepository;
 import com.you.require4testing.repository.TestRunAssignmentRepository;
 import com.you.require4testing.repository.TestRunRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
@@ -37,5 +39,23 @@ public class TestRunAssignmentController {
     @GetMapping
     public List<TestRunAssignment> list() {
         return repo.findAll();
+    }
+
+    // New update result method
+    @PatchMapping("/{id}/result")
+    public TestRunAssignment updateResult(@PathVariable Long id, @RequestBody ResultUpdateRequest req) {
+        TestRunAssignment assignment = repo.findById(id).orElseThrow(() -> new RuntimeException("Assignment not found"));
+        assignment.setResult(req.getResult());
+        assignment.setComment(req.getComment());
+        assignment.setExecutedAt(OffsetDateTime.now());
+        return repo.save(assignment);
+    }
+
+    // DTO for update
+    @Getter
+    @Setter
+    public static class ResultUpdateRequest {
+        private String result;   // e.g. PASS, FAIL
+        private String comment;
     }
 }
