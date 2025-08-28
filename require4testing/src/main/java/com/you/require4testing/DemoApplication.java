@@ -1,11 +1,16 @@
 package com.you.require4testing;
+import com.you.require4testing.repository.UserRepository;
+import com.you.require4testing.domain.User;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 // for bean data
-import org.springframework.jdbc.core.JdbcTemplate;
+// import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 
@@ -25,6 +30,28 @@ public class DemoApplication {
     */
 
     // Add CommandLineRunner to initialize data
+    @Bean
+    CommandLineRunner seedUsers(UserRepository repo, PasswordEncoder encoder) {
+        return args -> {
+            if (repo.findByUsername("admin").isEmpty()) {
+                repo.save(User.builder()
+                        .username("admin")
+                        .password(encoder.encode("adminpass"))
+                        .fullName("Admin Manager")
+                        .role("TEST_MANAGER")
+                        .build());
+            }
+            if (repo.findByUsername("tester1").isEmpty()) {
+                repo.save(User.builder()
+                        .username("tester1")
+                        .password(encoder.encode("testpass"))
+                        .fullName("Tester One")
+                        .role("TESTER")
+                        .build());
+            }
+        };
+    }
+    /*
     @Bean
     CommandLineRunner seedUsers(JdbcTemplate jdbc, PasswordEncoder encoder) {
         return args -> {
@@ -47,4 +74,5 @@ public class DemoApplication {
             }
         };
     }
+    */
 }
