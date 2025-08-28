@@ -3,6 +3,7 @@ package com.you.require4testing.config;
 import com.you.require4testing.security.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -46,9 +47,9 @@ public class SecurityConfig {
     // JWT过滤器类
     private static class JwtAuthenticationFilter extends OncePerRequestFilter {
         @Override
-        protected void doFilterInternal(HttpServletRequest request, 
-                                      HttpServletResponse response, 
-                                      FilterChain filterChain) throws ServletException, IOException {
+        protected void doFilterInternal(@NonNull HttpServletRequest request, 
+                                      @NonNull HttpServletResponse response, 
+                                      @NonNull FilterChain filterChain) throws ServletException, IOException {
             
             String authHeader = request.getHeader("Authorization");
             
