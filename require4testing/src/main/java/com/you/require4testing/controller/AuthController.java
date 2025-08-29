@@ -6,9 +6,12 @@ import com.you.require4testing.security.JwtUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+
+// import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -27,6 +30,25 @@ public class AuthController {
 
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody LoginRequest req) {
+        User user = userRepo.findByUsername(req.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!encoder.matches(req.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        String token = JwtUtil.generateToken(user.getUsername(), user.getRole());
+
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        response.put("role", user.getRole());
+        return response;  // 直接返回 JSON
+    }
+
+
+    /*
+    @PostMapping("/login")
+    public Map<String, String> login(@RequestBody LoginRequest req) {
         // 1. Find users by username
         User user = userRepo.findByUsername(req.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -42,6 +64,7 @@ public class AuthController {
         // 4. Return Token and role information to the client
         return Map.of("token", token, "role", user.getRole());
     }
+    */
 
     /**
     * Data transfer object for login requests

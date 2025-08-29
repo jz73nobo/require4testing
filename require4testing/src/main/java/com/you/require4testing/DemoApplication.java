@@ -33,7 +33,7 @@ public class DemoApplication {
     @Bean
     CommandLineRunner seedUsers(UserRepository repo, PasswordEncoder encoder) {
         return args -> {
-            if (repo.findByUsername("admin").isEmpty()) {
+            if (!repo.findByUsername("admin").isPresent()) {
                 repo.save(User.builder()
                         .username("admin")
                         .password(encoder.encode("adminpass"))
@@ -41,7 +41,7 @@ public class DemoApplication {
                         .role("TEST_MANAGER")
                         .build());
             }
-            if (repo.findByUsername("tester1").isEmpty()) {
+            if (!repo.findByUsername("tester1").isPresent()) {
                 repo.save(User.builder()
                         .username("tester1")
                         .password(encoder.encode("testpass"))

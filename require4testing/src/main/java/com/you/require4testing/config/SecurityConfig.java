@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
@@ -60,8 +61,8 @@ public class SecurityConfig {
                     String role = JwtUtil.getRole(token);
                     
                     // 创建认证对象
-                    var authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
-                    var auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
+                    List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(auth);
                     
                 } catch (Exception e) {
