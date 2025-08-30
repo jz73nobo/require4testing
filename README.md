@@ -22,3 +22,24 @@ A simple Test Management System built for the IPWA02-01 case study.
 ### Start Database
 ```bash
 docker compose up -d
+```
+
+### Start Backend
+```bash
+./mvnw spring-boot:run
+```
+
+### Start Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Documentation
+
+Architecture Diagram:
+
+Database ERD:
+
+Screenshots: see docs/screenshots/
