@@ -30,22 +30,24 @@ export default {
   methods: {
     async login() {
       try {
-        const formData = new URLSearchParams();
-        formData.append('username', this.username);
-        formData.append('password', this.password);
+        // 创建JSON格式的请求数据
+        const requestData = {
+          username: this.username,
+          password: this.password
+        };
         
-        const response = await axios.post('http://localhost:8080/api/auth/login', formData, {
+        const response = await axios.post('http://localhost:8080/api/auth/login', requestData, {
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/json'  // 修改为JSON格式
           },
-          withCredentials: true // 重要：允许发送和接收 cookie
+          withCredentials: true  // 允许发送和接收cookie
         });
         
         console.log('登录成功:', response.data);
         this.errorMessage = '';
         
         // 登录成功后跳转到存在的路由
-        this.$router.push('/requirements'); // 改为存在的路由
+        this.$router.push('/requirements');
       } catch (error) {
         console.error('登录失败:', error);
         if (error.response && error.response.data) {

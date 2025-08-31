@@ -21,7 +21,22 @@ public class Requirement {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    private String status = "ACTIVE"; // 添加状态字段
+
+    @Column(name = "created_by")
     private Long createdBy;
 
     private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = OffsetDateTime.now();
+        updatedAt = OffsetDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = OffsetDateTime.now();
+    }
 }
