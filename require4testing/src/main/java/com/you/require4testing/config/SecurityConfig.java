@@ -1,77 +1,88 @@
 package com.you.require4testing.config;
 
-import com.you.require4testing.security.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.lang.NonNull;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-// 注意：使用 javax.servlet.* 而不是 jakarta.servlet.*
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable(); // Spring Boot 2 的写法
-
-        // 添加JWT过滤器
-        http.addFilterBefore(new JwtAuthenticationFilter(), BasicAuthenticationFilter.class);
-
-        http.authorizeRequests() // Spring Boot 2 的写法
-                .antMatchers("/api/auth/**").permitAll() // 使用 antMatchers 而不是 requestMatchers
-                .anyRequest().authenticated();
+        http
+            .cors().and()
+            .csrf().disable()
+            .authorizeHttpRequests()
+                .antMatchers("/", "/login", "/register", "/api/auth/**", "/api/requirements/**").permitAll()
+                .anyRequest().authenticated()
+                .and()
+            .formLogin()
+                .loginProcessingUrl("/api/auth/login")
+                .successHandler((request, response, authentication) -> {
+                    // 登录成功时返回 JSON
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"success\": true, \"message\": \"登录成功\"}");
+                })
+                .failureHandler((request, response, exception) -> {
+                    // 登录失败时返回 JSON
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"success\": false, \"message\": \"登录失败: " + exception.getMessage() + "\"}");
+                })
+                .permitAll()
+                .and()
+            .logout()
+                .logoutUrl("/api/auth/logout")
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"success\": true, \"message\": \"登出成功\"}");
+                })
+                .permitAll()
+                .and()
+            .exceptionHandling()
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
         return http.build();
     }
 
+    // ✅ 核心：密码加密器
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // JWT过滤器类
-    private static class JwtAuthenticationFilter extends OncePerRequestFilter {
-        @Override
-        protected void doFilterInternal(@NonNull HttpServletRequest request, 
-                                      @NonNull HttpServletResponse response, 
-                                      @NonNull FilterChain filterChain) throws ServletException, IOException {
-            
-            String authHeader = request.getHeader("Authorization");
-            
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                String token = authHeader.substring(7);
-                try {
-                    String username = JwtUtil.getUsername(token);
-                    String role = JwtUtil.getRole(token);
-                    
-                    // 创建认证对象
-                    List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                    
-                } catch (Exception e) {
-                    // JWT验证失败，清除认证信息
-                    SecurityContextHolder.clearContext();
-                }
-            }
-            
-            filterChain.doFilter(request, response);
-        }
+    // ✅ 核心：必须声明 AuthenticationManager，否则不会用到你的 UserDetailsServiceImpl
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    // ✅ CORS 配置
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

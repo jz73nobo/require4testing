@@ -17,18 +17,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String username;
     
-    @Column(nullable = false)
     private String password;
-    
     private String fullName;
-
-    // e.g. "TEST_MANAGER", "TESTER", "AUTHOR"
-    @Column(nullable = false)
     private String role;
-
     private OffsetDateTime createdAt;
     
     // Automatically set creation time

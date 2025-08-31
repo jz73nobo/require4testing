@@ -36,7 +36,7 @@ public class DemoApplication {
             if (!repo.findByUsername("admin").isPresent()) {
                 repo.save(User.builder()
                         .username("admin")
-                        .password(encoder.encode("adminpass"))
+                        .password(encoder.encode("password"))
                         .fullName("Admin Manager")
                         .role("TEST_MANAGER")
                         .build());
