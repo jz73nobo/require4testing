@@ -25,13 +25,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors().and()
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 关键修改：指定CORS配置源
             .csrf().disable()
-            .authorizeHttpRequests()
+            .authorizeHttpRequests(authz -> authz
                 .antMatchers("/", "/login", "/register", "/api/auth/**", "/api/requirements/**").permitAll()
                 .anyRequest().authenticated()
-                .and()
-            .formLogin()
+            )
+            .formLogin(form -> form
                 .loginProcessingUrl("/api/auth/login")
                 .successHandler((request, response, authentication) -> {
                     // 登录成功时返回 JSON
@@ -45,17 +45,18 @@ public class SecurityConfig {
                     response.getWriter().write("{\"success\": false, \"message\": \"登录失败: " + exception.getMessage() + "\"}");
                 })
                 .permitAll()
-                .and()
-            .logout()
+            )
+            .logout(logout -> logout
                 .logoutUrl("/api/auth/logout")
                 .logoutSuccessHandler((request, response, authentication) -> {
                     response.setContentType("application/json;charset=UTF-8");
                     response.getWriter().write("{\"success\": true, \"message\": \"登出成功\"}");
                 })
                 .permitAll()
-                .and()
-            .exceptionHandling()
-                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+            )
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+            );
 
         return http.build();
     }
@@ -72,14 +73,20 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // ✅ CORS 配置
+    // ✅ CORS 配置 - 添加更多前端端口
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        // 添加所有可能的前端开发端口
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:5173",    // Vite默认端口
+            "http://localhost:8080",    // 常见前端端口  
+            "http://localhost:3000",    // React默认端口
+            "http://localhost:8081"     // 其他常见端口
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(true); // 允许携带cookie
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
