@@ -14,10 +14,13 @@ spring:
     enabled: true
     locations: classpath:db/migration
   session:
-    store-type: jdbc # 改为使用数据库存储会话
-    timeout: 1800 # 会话超时时间（秒）
+    store-type: jdbc
+    timeout: 1800
     jdbc:
-      initialize-schema: never  # 添加这一行！让Flyway管理表结构而不是Spring自动创建
+      initialize-schema: never
+    cookie:
+      same-site: lax    # ✅ 改为 lax 而不是 none
+      secure: false     # ✅ 本地开发设为 false
 
 server:
   port: 8080
@@ -25,8 +28,8 @@ server:
     session:
       cookie:
         http-only: true
-        secure: false # 开发环境设为false，生产环境应设为true
-        same-site: none # 允许跨站请求
+        secure: false   # ✅ 本地开发设为 false
+        same-site: lax  # ✅ 改为 lax 而不是 none
 
 logging:
   level:
