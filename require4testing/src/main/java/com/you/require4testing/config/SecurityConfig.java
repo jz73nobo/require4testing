@@ -36,13 +36,13 @@ public class SecurityConfig {
                 .successHandler((request, response, authentication) -> {
                     // 登录成功时返回 JSON
                     response.setContentType("application/json;charset=UTF-8");
-                    response.getWriter().write("{\"success\": true, \"message\": \"登录成功\"}");
+                    response.getWriter().write("{\"success\": true, \"message\": \"Login successful\"}");
                 })
                 .failureHandler((request, response, exception) -> {
                     // 登录失败时返回 JSON
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json;charset=UTF-8");
-                    response.getWriter().write("{\"success\": false, \"message\": \"登录失败: " + exception.getMessage() + "\"}");
+                    response.getWriter().write("{\"success\": false, \"message\": \"Login Failed: " + exception.getMessage() + "\"}");
                 })
                 .permitAll()
             )
@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .logoutUrl("/api/auth/logout")
                 .logoutSuccessHandler((request, response, authentication) -> {
                     response.setContentType("application/json;charset=UTF-8");
-                    response.getWriter().write("{\"success\": true, \"message\": \"登出成功\"}");
+                    response.getWriter().write("{\"success\": true, \"message\": \"Login successful\"}");
                 })
                 .permitAll()
             )

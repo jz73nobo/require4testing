@@ -1,100 +1,100 @@
 <template>
   <div id="app">
-    <!-- 未登录状态：显示登录表单 -->
+    <!-- Unauthenticated state: show login form -->
     <div v-if="!isAuthenticated" class="login-container">
       <div class="login-form">
-        <h2>测试管理系统</h2>
+        <h2>Test Management System</h2>
         <form @submit.prevent="handleLogin">
           <div class="form-group">
-            <label for="username">用户名:</label>
+            <label for="username">Username:</label>
             <input type="text" id="username" v-model="loginData.username" required>
           </div>
           <div class="form-group">
-            <label for="password">密码:</label>
+            <label for="password">Password:</label>
             <input type="password" id="password" v-model="loginData.password" required>
           </div>
-          <button type="submit" :disabled="loading">登录</button>
+          <button type="submit" :disabled="loading">Login</button>
         </form>
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </div>
     </div>
 
-    <!-- 已登录状态：显示功能界面 -->
+    <!-- Authenticated state: show functional interface -->
     <div v-else class="app-container">
-      <!-- 顶部导航栏 -->
+      <!-- Top navigation bar -->
       <nav class="app-nav">
         <div class="nav-brand">Require4Testing</div>
         <div class="nav-items">
-          <span class="user-info">欢迎, {{ user.username }} ({{ user.role }})</span>
-          <button @click="handleLogout" class="logout-btn">退出</button>
+          <span class="user-info">Welcome, {{ user.username }} ({{ user.role }})</span>
+          <button @click="handleLogout" class="logout-btn">Logout</button>
         </div>
       </nav>
 
-      <!-- 功能选项卡 -->
+      <!-- Function tabs -->
       <div class="tabs">
         <button 
           @click="activeTab = 'requirements'" 
           :class="{ active: activeTab === 'requirements' }"
         >
-          需求管理
+          Requirements Management
         </button>
         <button 
           @click="activeTab = 'testCases'" 
           :class="{ active: activeTab === 'testCases' }"
           v-if="user.role === 'TEST_DESIGNER'"
         >
-          测试用例
+          Test Cases
         </button>
         <button 
           @click="activeTab = 'testRuns'" 
           :class="{ active: activeTab === 'testRuns' }"
           v-if="user.role === 'TEST_MANAGER'"
         >
-          测试运行
+          Test Runs
         </button>
       </div>
 
-      <!-- 功能内容区域 -->
+      <!-- Functional content area -->
       <main class="main-content">
-        <!-- 需求管理 -->
+        <!-- Requirements Management -->
         <div v-if="activeTab === 'requirements'" class="tab-content">
-          <h3>需求管理</h3>
+          <h3>Requirements Management</h3>
           <div class="form-section">
-            <h4>添加新需求</h4>
-            <input v-model="newRequirement.title" placeholder="需求标题" class="input-field">
-            <textarea v-model="newRequirement.description" placeholder="需求描述" class="textarea-field"></textarea>
-            <button @click="addRequirement" class="submit-btn">创建需求</button>
+            <h4>Add New Requirement</h4>
+            <input v-model="newRequirement.title" placeholder="Requirement Title" class="input-field">
+            <textarea v-model="newRequirement.description" placeholder="Requirement Description" class="textarea-field"></textarea>
+            <button @click="addRequirement" class="submit-btn">Create Requirement</button>
           </div>
           
           <div class="list-section">
-            <h4>需求列表</h4>
+            <h4>Requirements List</h4>
             <div v-if="requirements.length === 0" class="empty-state">
-              暂无需求
+              No requirements yet
             </div>
             <ul v-else class="requirement-list">
               <li v-for="req in requirements" :key="req.id" class="requirement-item">
                 <strong>{{ req.title }}</strong>
                 <p>{{ req.description }}</p>
-                <small>创建时间: {{ formatDate(req.createdAt) }}</small>
+                <small>Created at: {{ formatDate(req.createdAt) }}</small>
               </li>
             </ul>
           </div>
         </div>
 
-        <!-- 其他功能区域（可以根据需要添加） -->
+        <!-- Other functional areas (can be added as needed) -->
         <div v-if="activeTab === 'testCases'" class="tab-content">
-          <h3>测试用例管理</h3>
-          <p>测试用例功能开发中...</p>
+          <h3>Test Case Management</h3>
+          <p>Test case functionality under development...</p>
         </div>
 
         <div v-if="activeTab === 'testRuns'" class="tab-content">
-          <h3>测试运行管理</h3>
-          <p>测试运行功能开发中...</p>
+          <h3>Test Run Management</h3>
+          <p>Test run functionality under development...</p>
         </div>
       </main>
     </div>
 
-    <!-- 全局加载指示器 -->
+    <!-- Global loading indicator -->
     <div v-if="loading" class="loading-overlay">
       <div class="loading-spinner"></div>
     </div>
@@ -115,13 +115,13 @@ export default {
       errorMessage: '',
       activeTab: 'requirements',
       
-      // 登录数据
+      // Login data
       loginData: {
         username: '',
         password: ''
       },
       
-      // 需求管理数据
+      // Requirements management data
       newRequirement: {
         title: '',
         description: ''
@@ -130,7 +130,7 @@ export default {
     };
   },
   async created() {
-    // 应用启动时检查认证状态
+    // Check authentication status when app starts
     await this.checkAuthStatus();
   },
   methods: {
@@ -144,12 +144,12 @@ export default {
             username: authStatus.username,
             role: authStatus.authorities?.[0]?.replace('ROLE_', '') || 'USER'
           };
-          // 加载需求列表
+          // Load requirements list
           await this.loadRequirements();
         }
       } catch (error) {
-        console.error('检查认证状态失败:', error);
-        this.errorMessage = '认证检查失败';
+        console.error('Failed to check authentication status:', error);
+        this.errorMessage = 'Authentication check failed';
       } finally {
         this.loading = false;
       }
@@ -160,23 +160,23 @@ export default {
       this.errorMessage = '';
       try {
         const response = await authService.login(this.loginData.username, this.loginData.password);
-        console.log('登录成功:', response);
+        console.log('Login successful:', response);
     
-        // 等待一下让session设置完成
+        // Wait a bit for session setup to complete
         await new Promise(resolve => setTimeout(resolve, 100));
     
-        // 重新检查认证状态
+        // Recheck authentication status
         await this.checkAuthStatus();
     
-        // 如果还是没跳转，强制刷新页面
+        // If still not redirected, force page refresh
         if (this.isAuthenticated) {
-        console.log('认证成功，但界面未更新，强制刷新页面...');
+        console.log('Authentication successful, but interface not updated, forcing page refresh...');
         window.location.reload();
         }
     
       } catch (error) {
-      console.error('登录失败:', error);
-      this.errorMessage = error.response?.data?.message || '登录失败，请检查用户名和密码';
+      console.error('Login failed:', error);
+      this.errorMessage = error.response?.data?.message || 'Login failed, please check username and password';
       } finally {
       this.loading = false;
       } 
@@ -191,8 +191,8 @@ export default {
         this.loginData = { username: '', password: '' };
         this.requirements = [];
       } catch (error) {
-        console.error('登出失败:', error);
-        this.errorMessage = '登出失败';
+        console.error('Logout failed:', error);
+        this.errorMessage = 'Logout failed';
       } finally {
         this.loading = false;
       }
@@ -203,14 +203,14 @@ export default {
         const response = await api.get('/requirements');
         this.requirements = response.data;
       } catch (error) {
-        console.error('加载需求失败:', error);
-        this.errorMessage = '加载需求失败';
+        console.error('Failed to load requirements:', error);
+        this.errorMessage = 'Failed to load requirements';
       }
     },
 
     async addRequirement() {
       if (!this.newRequirement.title.trim()) {
-        this.errorMessage = '请输入需求标题';
+        this.errorMessage = 'Please enter requirement title';
         return;
       }
 
@@ -218,15 +218,15 @@ export default {
         await api.post('/requirements', {
           title: this.newRequirement.title,
           description: this.newRequirement.description,
-          createdBy: 1 // 这里需要从用户信息中获取实际ID
+          createdBy: 1 // This should get the actual ID from user info
         });
         
         this.newRequirement = { title: '', description: '' };
         await this.loadRequirements();
         this.errorMessage = '';
       } catch (error) {
-        console.error('添加需求失败:', error);
-        this.errorMessage = '添加需求失败';
+        console.error('Failed to add requirement:', error);
+        this.errorMessage = 'Failed to add requirement';
       }
     },
 
@@ -238,7 +238,7 @@ export default {
 </script>
 
 <style>
-/* 全局样式 */
+/* Global styles */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -249,7 +249,7 @@ body {
   min-height: 100vh;
 }
 
-/* 登录页面样式 */
+/* Login page styles */
 .login-container {
   display: flex;
   justify-content: center;
@@ -312,7 +312,7 @@ body {
   margin-top: 1rem;
 }
 
-/* 主应用样式 */
+/* Main application styles */
 .app-container {
   min-height: 100vh;
   background-color: #f5f5f5;
@@ -357,7 +357,7 @@ body {
   background-color: #d32f2f;
 }
 
-/* 选项卡样式 */
+/* Tab styles */
 .tabs {
   display: flex;
   background: white;
@@ -383,7 +383,7 @@ body {
   color: #185b9fff;
 }
 
-/* 主内容区域 */
+/* Main content area */
 .main-content {
   padding: 2rem;
   max-width: 1200px;
@@ -397,7 +397,7 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* 表单样式 */
+/* Form styles */
 .form-section {
   margin-bottom: 2rem;
   padding-bottom: 2rem;
@@ -431,7 +431,7 @@ body {
   background-color: #13478a;
 }
 
-/* 列表样式 */
+/* List styles */
 .requirement-list {
   list-style: none;
   padding: 0;
@@ -464,7 +464,7 @@ body {
   padding: 2rem;
 }
 
-/* 加载指示器 */
+/* Loading indicator */
 .loading-overlay {
   position: fixed;
   top: 0;

@@ -2,14 +2,14 @@
   <div class="login-container">
     <form @submit.prevent="login">
       <div>
-        <label for="username">用户名:</label>
+        <label for="username">username:</label>
         <input type="text" id="username" v-model="username" required>
       </div>
       <div>
-        <label for="password">密码:</label>
+        <label for="password">password:</label>
         <input type="password" id="password" v-model="password" required>
       </div>
-      <button type="submit">登录</button>
+      <button type="submit">Log in</button>
     </form>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
   </div>
@@ -43,17 +43,17 @@ export default {
           withCredentials: true  // 允许发送和接收cookie
         });
         
-        console.log('登录成功:', response.data);
+        console.log('Login successful:', response.data);
         this.errorMessage = '';
         
         // 登录成功后跳转到存在的路由
         this.$router.push('/requirements');
       } catch (error) {
-        console.error('登录失败:', error);
+        console.error('Login Failed:', error);
         if (error.response && error.response.data) {
-          this.errorMessage = error.response.data.message || '登录失败';
+          this.errorMessage = error.response.data.message || 'Login Failed';
         } else {
-          this.errorMessage = '网络错误，请稍后重试';
+          this.errorMessage = 'Network error, please try again later';
         }
       }
     }

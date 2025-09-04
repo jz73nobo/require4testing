@@ -30,12 +30,12 @@ async function load() {
     requirements.value = res.data;
     error.value = "";
   } catch (err) {
-    console.error("加载需求失败:", err);
+    console.error("Failed to load requirements:", err);
     if (err.response && err.response.status === 401) {
-      error.value = "未认证，请先登录";
+      error.value = "Unauthorized, please login first";
       router.push("/login");
     } else {
-      error.value = "加载失败，请重试";
+      error.value = "Failed to load, please try again";
     }
   }
 }
@@ -51,12 +51,12 @@ async function addRequirement() {
     description.value = "";
     load();
   } catch (err) {
-    console.error("添加需求失败:", err);
+    console.error("Failed to add requirement:", err);
     if (err.response && err.response.status === 401) {
-      error.value = "未认证，请先登录";
+      error.value = "Unauthorized, please login first";
       router.push("/login");
     } else {
-      error.value = "添加失败，请重试";
+      error.value = "Failed to add, please try again";
     }
   }
 }

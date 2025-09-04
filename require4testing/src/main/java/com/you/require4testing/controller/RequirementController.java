@@ -45,7 +45,7 @@ public class RequirementController {
         
         // 通过用户名查询用户实体
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("用户不存在: " + username));
+                .orElseThrow(() -> new RuntimeException("User does not exist: " + username));
         
         // 只返回当前用户创建的需求
         return repo.findByCreatedBy(user.getId());

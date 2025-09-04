@@ -13,7 +13,7 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initUsers(UserRepository userRepository, PasswordEncoder encoder) {
         return args -> {
-            System.out.println("🔄 正在检查并重置所有用户密码...");
+            System.out.println("🔄 Checking and resetting all user passwords...");
             
             // 所有需要重置密码的用户列表
             String[] usersToReset = {
@@ -36,14 +36,14 @@ public class DataInitializer {
                         String newHash = encoder.encode("password");
                         user.setPassword(newHash);
                         userRepository.save(user);
-                        System.out.println("✅ 重置用户 '" + username + "' 密码为 'password'");
+                        System.out.println("✅ Reset User '" + username + "' Password is 'password'");
                     } else {
-                        System.out.println("ℹ️  用户 '" + username + "' 密码已经是 'password'，跳过重置");
+                        System.out.println("ℹ️  User '" + username + "' Password is already 'password'，skip reset");
                     }
                 });
             }
             
-            System.out.println("🎉 所有用户密码检查完成");
+            System.out.println("🎉 all check done");
         };
     }
 }

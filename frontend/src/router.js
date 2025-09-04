@@ -3,7 +3,7 @@ import Login from "./pages/Login.vue";
 import Requirements from "./pages/Requirements.vue";
 import authService from "./services/auth";
 
-// 定义路由规则
+// Define route rules
 const routes = [
   { 
     path: "/login", 
@@ -14,7 +14,7 @@ const routes = [
     path: "/requirements", 
     component: Requirements,
     name: "Requirements",
-    meta: { requiresAuth: true } // 添加需要认证的标记
+    meta: { requiresAuth: true } // Add authentication required flag
   },
   {
     path: "/",
@@ -22,33 +22,33 @@ const routes = [
   }
 ];
 
-// 创建路由器实例
+// Create router instance
 const router = createRouter({
   history: createWebHistory(),
   routes,
 });
 
-// 添加路由守卫
+// Add route guard
 router.beforeEach(async (to, from, next) => {
-  // 检查目标路由是否需要认证
+  // Check if target route requires authentication
   if (to.matched.some(record => record.meta.requiresAuth)) {
     try {
-      // 检查认证状态
+      // Check authentication status
       const authStatus = await authService.checkAuthStatus();
       
       if (authStatus.authenticated) {
-        // 已认证，允许访问
+        // Authenticated, allow access
         next();
       } else {
-        // 未认证，重定向到登录页
+        // Not authenticated, redirect to login page
         next({ name: "Login" });
       }
     } catch (error) {
-      console.error("认证检查失败:", error);
+      console.error("Authentication check failed:", error);
       next({ name: "Login" });
     }
   } else {
-    // 不需要认证的路由，直接允许访问
+    // Routes that don't require authentication, allow direct access
     next();
   }
 });

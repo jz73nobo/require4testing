@@ -2,21 +2,21 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8080';
 
-// 创建 axios 实例，配置基础URL和凭证设置
+// Create axios instance with base URL and credential settings
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true // 允许发送和接收 cookie
+  withCredentials: true // Allow sending and receiving cookies
 });
 
 export default {
-  // 检查认证状态 - 添加调试和确保数据格式
+  // Check authentication status - add debugging and ensure data format
   async checkAuthStatus() {
     try {
-      console.log('正在检查认证状态...');
+      console.log('Checking authentication status...');
       const response = await apiClient.get('/api/auth/status');
-      console.log('认证状态响应:', response.data);
+      console.log('Authentication status response:', response.data);
       
-      // 确保返回的数据有正确的格式
+      // Ensure returned data has correct format
       const responseData = response.data || {};
       return {
         authenticated: !!responseData.authenticated,
@@ -24,8 +24,8 @@ export default {
         authorities: responseData.authorities || []
       };
     } catch (error) {
-      console.error('检查认证状态失败:', error);
-      // 即使出错也返回明确的结构
+      console.error('Failed to check authentication status:', error);
+      // Return clear structure even if error occurs
       return { 
         authenticated: false, 
         username: '', 
@@ -34,10 +34,10 @@ export default {
     }
   },
   
-  // 登录方法 - 添加调试
+  // Login method - add debugging
   async login(username, password) {
     try {
-      console.log('正在登录，用户名:', username);
+      console.log('Logging in, username:', username);
       const formData = new URLSearchParams();
       formData.append('username', username);
       formData.append('password', password);
@@ -47,27 +47,27 @@ export default {
           'Content-Type': 'application/x-www-form-urlencoded'
         }
       });
-      console.log('登录成功响应:', response.data);
+      console.log('Login successful response:', response.data);
       return response.data;
     } catch (error) {
-      console.error('登录失败:', error);
+      console.error('Login failed:', error);
       if (error.response) {
-        console.error('登录失败响应数据:', error.response.data);
-        console.error('登录失败状态码:', error.response.status);
+        console.error('Login failed response data:', error.response.data);
+        console.error('Login failed status code:', error.response.status);
       }
       throw error;
     }
   },
   
-  // 登出方法 - 添加调试
+  // Logout method - add debugging
   async logout() {
     try {
-      console.log('正在登出...');
+      console.log('Logging out...');
       const response = await apiClient.post('/api/auth/logout');
-      console.log('登出成功响应:', response.data);
+      console.log('Logout successful response:', response.data);
       return response.data;
     } catch (error) {
-      console.error('登出失败:', error);
+      console.error('Logout failed:', error);
       throw error;
     }
   }
