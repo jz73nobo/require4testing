@@ -56,6 +56,26 @@
 
       <!-- Functional content area -->
       <main class="main-content">
+        <!-- Requirements Page -->
+        <div v-if="activeTab === 'requirements'">
+          <Requirements />
+        </div>
+
+        <!-- Test Runs Page -->
+        <div v-if="activeTab === 'testRuns'">
+          <TestRuns />
+        </div>
+
+        <!-- Test Cases Page -->
+        <div v-if="activeTab === 'testCases'">
+          <TestCases />
+        </div>
+
+        <!-- Assignments Page -->
+        <div v-if="activeTab === 'assignments'">
+          <Assignments />
+        </div>
+
         <!-- Requirements Management -->
         <div v-if="activeTab === 'requirements'" class="tab-content">
           <h3>Requirements Management</h3>
@@ -144,8 +164,28 @@ export default {
             username: authStatus.username,
             role: authStatus.authorities?.[0]?.replace('ROLE_', '') || 'USER'
           };
-          // Load requirements list
-          await this.loadRequirements();
+          // 根据角色选择不同首页
+          switch (this.user.role) {
+            case 'REQ_ENGINEER':
+              this.activeTab = 'requirements';   // 需求工程师 → 管理需求
+              break;
+            case 'TEST_MANAGER':
+              this.activeTab = 'testRuns';       // 测试经理 → 管理测试运行
+              break;
+            case 'TEST_DESIGNER':
+              this.activeTab = 'testCases';      // 用例设计师 → 管理测试用例
+              break;
+            case 'TESTER':
+              this.activeTab = 'assignments';    // 测试人员 → 我的任务
+              break;
+            default:
+              this.activeTab = 'requirements';   // 兜底：需求页面
+          }
+
+          // 如果需要加载需求，只对非 Tester 做
+          if (this.user.role !== 'TESTER') {
+            await this.loadRequirements();
+          }
         }
       } catch (error) {
         console.error('Failed to check authentication status:', error);
