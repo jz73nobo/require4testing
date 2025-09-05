@@ -62,9 +62,26 @@
         </div>
 
         <!-- Test Runs Page -->
-        <div v-if="activeTab === 'testRuns'">
-          <TestRuns />
+        <div v-if="activeTab === 'testRuns'" class="tab-content">
+          <h3>Test Run Management</h3>
+          <div class="form-section">
+            <h4>Create New Test Run</h4>
+            <input v-model="newTestRun.name" placeholder="Test Run Name" class="input-field">
+            <button @click="addTestRun" class="submit-btn">Create Test Run</button>
+          </div>
+
+          <div class="list-section">
+            <h4>Test Runs List</h4>
+            <div v-if="testRuns.length === 0" class="empty-state">No test runs yet</div>
+            <ul v-else class="requirement-list">
+              <li v-for="tr in testRuns" :key="tr.id" class="requirement-item">
+                <strong>{{ tr.name }}</strong>
+                <p>Created: {{ formatDate(tr.createdAt) }}</p>
+              </li>
+            </ul>
+          </div>
         </div>
+
 
         <!-- Test Cases Page -->
         <div v-if="activeTab === 'testCases'" class="tab-content">
@@ -179,7 +196,11 @@ export default {
         description: '',
         requirementId: ''
       },
-      testCases: []
+      testCases: [],
+
+      // Test Runs for Test Manager
+      newTestRun: { name: ''},
+      testRuns: []
     };
   },
   async created() {
@@ -187,6 +208,18 @@ export default {
     await this.checkAuthStatus();
   },
   methods: {
+    async loadTestRunss(){
+      const res = await api.get('/testruns');
+      this.testRuns = res.data;
+    },
+    async addTestRun(){
+      await api.post('/testruns',{
+        name: this.newTestRun.name,
+        createdBy: 1
+      }),
+      this.newTestRun = { name: ''};
+      await this.loadTestRunss();
+    },
     async loadTestCases() {
       const res = await api.get('/testcases');
       this.testCases = res.data;
