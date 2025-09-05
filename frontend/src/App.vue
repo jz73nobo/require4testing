@@ -67,9 +67,34 @@
         </div>
 
         <!-- Test Cases Page -->
-        <div v-if="activeTab === 'testCases'">
-          <TestCases />
+        <div v-if="activeTab === 'testCases'" class="tab-content">
+          <h3>Test Case Management</h3>
+          <div class="form-section">
+            <h4>Add New Test Case</h4>
+            <input v-model="newTestCase.title" placeholder="Test Case Title" class="input-field">
+            <textarea v-model="newTestCase.description" placeholder="Test Case Description" class="textarea-field"></textarea>
+            <select v-model="newTestCase.requirementId" class="input-field">
+              <option disabled value="">Select Requirement</option>
+              <option v-for="req in requirements" :value="req.id" :key="req.id">
+                {{ req.title }}
+              </option>
+            </select>
+            <button @click="addTestCase" class="submit-btn">Create Test Case</button>
+          </div>
+
+          <div class="list-section">
+            <h4>Test Cases List</h4>
+            <div v-if="testCases.length === 0" class="empty-state">No test cases yet</div>
+            <ul v-else class="requirement-list">
+              <li v-for="tc in testCases" :key="tc.id" class="requirement-item">
+                <strong>{{ tc.title }}</strong>
+                <p>{{ tc.description }}</p>
+                <small>Requirement: {{ tc.requirement.title }}</small>
+              </li>
+            </ul>
+          </div>
         </div>
+
 
         <!-- Assignments Page -->
         <div v-if="activeTab === 'assignments'">
@@ -146,7 +171,15 @@ export default {
         title: '',
         description: ''
       },
-      requirements: []
+      requirements: [],
+
+      // Test Cases for Test Designer
+      newTestCase: {
+        title: '',
+        description: '',
+        requirementId: ''
+      },
+      testCases: []
     };
   },
   async created() {
@@ -154,6 +187,20 @@ export default {
     await this.checkAuthStatus();
   },
   methods: {
+    async loadTestCases() {
+      const res = await api.get('/testcases');
+      this.testCases = res.data;
+    },
+    async addTestCase() {
+      await api.post('/testcases', {
+        title: this.newTestCase.title,
+        description: this.newTestCase.description,
+        requirement: { id: this.newTestCase.requirementId },
+        createdBy: 1
+      });
+      this.newTestCase = { title: '', description: '', requirementId: '' };
+      await this.loadTestCases();
+    },
     async checkAuthStatus() {
       this.loading = true;
       try {
