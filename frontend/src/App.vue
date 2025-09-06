@@ -114,9 +114,25 @@
 
 
         <!-- Assignments Page -->
-        <div v-if="activeTab === 'assignments'">
-          <Assignments />
+        <div v-if="activeTab === 'assignments'" class="tab-content">
+          <h3>My Assignments</h3>
+          <div v-if="assignments.length === 0" class="empty-state">No assignments</div>
+          <ul v-else class="requirement-list">
+            <li v-for="as in assignments" :key="as.id" class="requirement-item">
+              <strong>{{ as.testCase.title }}</strong>
+              <p>Requirement: {{ as.testCase.requirement.title }}</p>
+              <p>Result: 
+                <select v-model="as.result" @change="updateAssignment(as)">
+                  <option>NOT_RUN</option>
+                  <option>PASS</option>
+                  <option>FAIL</option>
+                </select>
+              </p>
+              <input v-model="as.comment" @blur="updateAssignment(as)" placeholder="Comment" class="input-field">
+            </li>
+          </ul>
         </div>
+
 
         <!-- Requirements Management -->
         <div v-if="activeTab === 'requirements'" class="tab-content">
@@ -200,7 +216,10 @@ export default {
 
       // Test Runs for Test Manager
       newTestRun: { name: ''},
-      testRuns: []
+      testRuns: [],
+
+      // Tester
+      assignments: []
     };
   },
   async created() {
@@ -208,6 +227,17 @@ export default {
     await this.checkAuthStatus();
   },
   methods: {
+    async loadAssignments(){
+      const res = await api.get('/assignments/my');
+      this.assignments = res.data;
+    },
+    async updateAssignment(as){
+      await api.patch('/assignments/${as.id}/result', {
+        result: as.result,
+        comment: as.comment
+      });
+    },
+
     async loadTestRunss(){
       const res = await api.get('/testruns');
       this.testRuns = res.data;
@@ -262,9 +292,19 @@ export default {
               this.activeTab = 'requirements';   // 兜底：需求页面
           }
 
-          // 如果需要加载需求，只对非 Tester 做
-          if (this.user.role !== 'TESTER') {
+          if (this.user.role !== 'REQ_ENGINEER') {
             await this.loadRequirements();
+          }
+
+          if (this.user.role !== 'TEST_DESIGNER') {
+            await this.loadTestCases();
+          }
+
+          if (this.user.role !== 'TEST_MANAGER') {
+            await this.loadTestRuns();
+          }
+          if (this.user.role !== 'TEST') {
+            await this.loadAssignments();
           }
         }
       } catch (error) {
