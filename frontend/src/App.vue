@@ -308,7 +308,7 @@ export default {
           }
         }
       } catch (error) {
-        console.error('Failed to check authentication status:', error);
+        // console.error('Failed to check authentication status:', error);
         this.errorMessage = 'Authentication check failed';
       } finally {
         this.loading = false;
