@@ -102,7 +102,7 @@
               <li v-for="tc in testCases" :key="tc.id" class="requirement-item">
                 <strong>{{ tc.title }}</strong>
                 <p>{{ tc.description }}</p>
-                <small>Requirement: {{ tc.requirement.title }}</small>
+                <small>Requirement: {{ tc.requirement?.title }}, Created: {{ formatDate(tc.createdAt) }}</small>
               </li>
             </ul>
           </div>
