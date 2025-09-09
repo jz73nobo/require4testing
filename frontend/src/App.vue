@@ -200,7 +200,7 @@ export default {
       testCases: [],
 
       // Test Runs for Test Manager
-      newTestRun: { name: ''},
+      newTestRun: { title: ''},
       testRuns: [],
 
       // Tester
@@ -229,7 +229,7 @@ export default {
     },
     async addTestRun(){
       await api.post('/testruns',{
-        name: this.newTestRun.name
+        title: this.newTestRun.title
       }),
       this.newTestRun = { name: ''};
       await this.loadTestRuns();

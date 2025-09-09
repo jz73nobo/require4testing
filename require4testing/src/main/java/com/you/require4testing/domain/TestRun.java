@@ -17,10 +17,24 @@ public class TestRun {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-    private LocalDate startDate;
-    private LocalDate endDate;
-
+    private String title; // 改为title而不是name
+    private String description;
+    private String status = "PLANNED";
+    
+    @Column(name = "created_by")
     private Long createdBy;
+    
     private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = OffsetDateTime.now();
+        updatedAt = OffsetDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = OffsetDateTime.now();
+    }
 }
