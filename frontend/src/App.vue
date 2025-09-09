@@ -56,10 +56,6 @@
 
       <!-- Functional content area -->
       <main class="main-content">
-        <!-- Requirements Page -->
-        <div v-if="activeTab === 'requirements'">
-          <Requirements />
-        </div>
 
         <!-- Test Runs Page -->
         <div v-if="activeTab === 'testRuns'" class="tab-content">
@@ -158,17 +154,6 @@
             </ul>
           </div>
         </div>
-
-        <!-- Other functional areas (can be added as needed) -->
-        <div v-if="activeTab === 'testCases'" class="tab-content">
-          <h3>Test Case Management</h3>
-          <p>Test case functionality under development...</p>
-        </div>
-
-        <div v-if="activeTab === 'testRuns'" class="tab-content">
-          <h3>Test Run Management</h3>
-          <p>Test run functionality under development...</p>
-        </div>
       </main>
     </div>
 
@@ -232,23 +217,22 @@ export default {
       this.assignments = res.data;
     },
     async updateAssignment(as){
-      await api.patch('/assignments/${as.id}/result', {
+      await api.patch(`/assignments/${as.id}/result`, {
         result: as.result,
         comment: as.comment
       });
     },
 
-    async loadTestRunss(){
+    async loadTestRuns(){
       const res = await api.get('/testruns');
       this.testRuns = res.data;
     },
     async addTestRun(){
       await api.post('/testruns',{
-        name: this.newTestRun.name,
-        createdBy: 1
+        name: this.newTestRun.name
       }),
       this.newTestRun = { name: ''};
-      await this.loadTestRunss();
+      await this.loadTestRuns();
     },
     async loadTestCases() {
       const res = await api.get('/testcases');
@@ -258,14 +242,13 @@ export default {
       await api.post('/testcases', {
         title: this.newTestCase.title,
         description: this.newTestCase.description,
-        requirement: { id: this.newTestCase.requirementId },
-        createdBy: 1
+        requirement: { id: this.newTestCase.requirementId }
       });
       this.newTestCase = { title: '', description: '', requirementId: '' };
       await this.loadTestCases();
     },
+
     async checkAuthStatus() {
-      this.loading = true;
       try {
         const authStatus = await authService.checkAuthStatus();
         this.isAuthenticated = authStatus.authenticated;
@@ -274,44 +257,32 @@ export default {
             username: authStatus.username,
             role: authStatus.authorities?.[0]?.replace('ROLE_', '') || 'USER'
           };
-          // 根据角色选择不同首页
+          
+          // 根据角色设置默认标签页
           switch (this.user.role) {
             case 'REQ_ENGINEER':
-              this.activeTab = 'requirements';   // 需求工程师 → 管理需求
+              this.activeTab = 'requirements';
+              await this.loadRequirements();  // 只有需求工程师才加载需求
               break;
             case 'TEST_MANAGER':
-              this.activeTab = 'testRuns';       // 测试经理 → 管理测试运行
+              this.activeTab = 'testRuns';
+              await this.loadTestRuns();      // 只有测试经理才加载测试运行
               break;
             case 'TEST_DESIGNER':
-              this.activeTab = 'testCases';      // 用例设计师 → 管理测试用例
+              this.activeTab = 'testCases';
+              await this.loadTestCases();     // 只有测试设计师才加载测试用例
+              await this.loadRequirements();  // 测试设计师也需要看到需求
               break;
             case 'TESTER':
-              this.activeTab = 'assignments';    // 测试人员 → 我的任务
+              this.activeTab = 'assignments';
+              await this.loadAssignments();   // 只有测试人员才加载任务
               break;
             default:
-              this.activeTab = 'requirements';   // 兜底：需求页面
-          }
-
-          if (this.user.role !== 'REQ_ENGINEER') {
-            await this.loadRequirements();
-          }
-
-          if (this.user.role !== 'TEST_DESIGNER') {
-            await this.loadTestCases();
-          }
-
-          if (this.user.role !== 'TEST_MANAGER') {
-            await this.loadTestRuns();
-          }
-          if (this.user.role !== 'TEST') {
-            await this.loadAssignments();
+              this.activeTab = 'requirements';
           }
         }
       } catch (error) {
-        // console.error('Failed to check authentication status:', error);
-        this.errorMessage = 'Authentication check failed';
-      } finally {
-        this.loading = false;
+        console.error('Failed to check authentication status:', error);
       }
     },
 

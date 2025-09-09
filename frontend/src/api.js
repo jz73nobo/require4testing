@@ -1,12 +1,19 @@
 import axios from "axios";
 
-// 创建 axios 实例，统一配置基础设置
 const api = axios.create({
-  baseURL: "http://localhost:8080/api", // 后端API的基础地址
-  withCredentials: true // 允许发送和接收 cookie
+  baseURL: "http://localhost:8080/api",
+  withCredentials: true
 });
 
-// 移除 JWT 相关的请求拦截器
-// 因为后端使用 Session 认证，不需要手动设置 Authorization 头
+// 添加请求拦截器确保携带认证信息
+api.interceptors.request.use(
+  (config) => {
+    // 可以在这里添加认证token等
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export default api;
