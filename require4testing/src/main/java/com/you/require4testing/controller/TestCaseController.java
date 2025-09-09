@@ -35,17 +35,9 @@ public class TestCaseController {
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new RuntimeException("User not found: " + username));
             
-            if (request.getRequirementId() == null) {
-                return ResponseEntity.badRequest().body("Requirement ID is required");
-            }
-            
-            Requirement requirement = reqRepo.findById(request.getRequirementId())
-                    .orElseThrow(() -> new RuntimeException("Requirement not found with id: " + request.getRequirementId()));
-            
             TestCase tc = new TestCase();
             tc.setTitle(request.getTitle());
             tc.setDescription(request.getDescription());
-            tc.setRequirement(requirement);
             tc.setCreatedBy(user.getId());
             tc.setCreatedAt(OffsetDateTime.now());
             

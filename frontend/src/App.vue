@@ -86,12 +86,7 @@
             <h4>Add New Test Case</h4>
             <input v-model="newTestCase.title" placeholder="Test Case Title" class="input-field">
             <textarea v-model="newTestCase.description" placeholder="Test Case Description" class="textarea-field"></textarea>
-            <select v-model="newTestCase.requirementId" class="input-field">
-              <option disabled value="">Select Requirement</option>
-              <option v-for="req in requirements" :value="req.id" :key="req.id">
-                {{ req.title }}
-              </option>
-            </select>
+            <!-- 删除整个select元素 -->
             <button @click="addTestCase" class="submit-btn">Create Test Case</button>
           </div>
 
@@ -194,8 +189,7 @@ export default {
       // Test Cases for Test Designer
       newTestCase: {
         title: '',
-        description: '',
-        requirementId: ''
+        description: ''
       },
       testCases: [],
 
@@ -239,11 +233,6 @@ export default {
       this.testCases = res.data;
     },
     async addTestCase() {
-      // 添加验证
-      if (!this.newTestCase.requirementId) {
-        this.errorMessage = 'Please select a requirement';
-        return;
-      }
       
       if (!this.newTestCase.title.trim()) {
         this.errorMessage = 'Please enter test case title';
@@ -251,14 +240,12 @@ export default {
       }
 
       try {
-        const response = await api.post('/testcases', {
+        await api.post('/testcases', {
           title: this.newTestCase.title,
-          description: this.newTestCase.description,
-          requirementId: this.newTestCase.requirementId
+          description: this.newTestCase.description
+          // 删除 requirementId
         });
-        
-        this.newTestCase = { title: '', description: '', requirementId: '' };
-        this.errorMessage = '';
+        this.newTestCase = { title: '', description: '' }; // 删除 requirementId
         await this.loadTestCases();
       } catch (error) {
         console.error('Failed to add test case:', error);
