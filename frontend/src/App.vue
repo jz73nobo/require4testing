@@ -230,8 +230,8 @@ export default {
     async addTestRun(){
       await api.post('/testruns',{
         title: this.newTestRun.title
-      }),
-      this.newTestRun = { name: ''};
+      });
+      this.newTestRun = { title: '' };
       await this.loadTestRuns();
     },
     async loadTestCases() {
