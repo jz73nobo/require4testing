@@ -29,7 +29,7 @@ public class SecurityConfig {
             .csrf().disable()
             .authorizeHttpRequests(authz -> authz
                 .antMatchers("/", "/login", "/register", "/api/auth/**").permitAll()
-                .antMatchers("/api/requirements/**").hasAnyRole("REQ_ENGINEER", "TEST_DESIGNER") // 需求工程师和测试设计师可以访问需求
+                .antMatchers("/api/requirements/**").hasAnyRole("REQUIREMENTS_ENGINEER", "TEST_DESIGNER") // 需求工程师和测试设计师可以访问需求
                 .antMatchers("/api/testcases/**").hasRole("TEST_DESIGNER") // 只有测试设计师可以访问测试用例
                 .antMatchers("/api/testruns/**").hasRole("TEST_MANAGER") // 只有测试经理可以访问测试运行
                 .antMatchers("/api/assignments/**").hasRole("TESTER") // 只有测试人员可以访问任务
