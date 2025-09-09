@@ -32,9 +32,14 @@ public class TestCaseController {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
         
-        // 验证需求是否存在
-        Requirement requirement = reqRepo.findById(tc.getRequirement().getId())
-                .orElseThrow(() -> new RuntimeException("Requirement not found"));
+        // 验证需求是否存在 - 修改这里
+        Long requirementId = tc.getRequirement() != null ? tc.getRequirement().getId() : null;
+        if (requirementId == null) {
+            throw new RuntimeException("Requirement ID is required");
+        }
+        
+        Requirement requirement = reqRepo.findById(requirementId)
+                .orElseThrow(() -> new RuntimeException("Requirement not found with id: " + requirementId));
         
         // 设置测试用例属性
         tc.setRequirement(requirement);
