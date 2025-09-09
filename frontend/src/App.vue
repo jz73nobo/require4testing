@@ -239,13 +239,31 @@ export default {
       this.testCases = res.data;
     },
     async addTestCase() {
-      await api.post('/testcases', {
-        title: this.newTestCase.title,
-        description: this.newTestCase.description,
-        requirementId: this.newTestCase.requirementId // 直接发送requirementId而不是嵌套对象
-      });
-      this.newTestCase = { title: '', description: '', requirementId: '' };
-      await this.loadTestCases();
+      // 添加验证
+      if (!this.newTestCase.requirementId) {
+        this.errorMessage = 'Please select a requirement';
+        return;
+      }
+      
+      if (!this.newTestCase.title.trim()) {
+        this.errorMessage = 'Please enter test case title';
+        return;
+      }
+
+      try {
+        const response = await api.post('/testcases', {
+          title: this.newTestCase.title,
+          description: this.newTestCase.description,
+          requirementId: this.newTestCase.requirementId
+        });
+        
+        this.newTestCase = { title: '', description: '', requirementId: '' };
+        this.errorMessage = '';
+        await this.loadTestCases();
+      } catch (error) {
+        console.error('Failed to add test case:', error);
+        this.errorMessage = error.response?.data || 'Failed to add test case';
+      }
     },
 
     async checkAuthStatus() {
@@ -333,6 +351,7 @@ export default {
       try {
         const response = await api.get('/requirements');
         this.requirements = response.data;
+        console.log('Loaded requirements:', this.requirements); // 添加调试
       } catch (error) {
         console.error('Failed to load requirements:', error);
         this.errorMessage = 'Failed to load requirements';
