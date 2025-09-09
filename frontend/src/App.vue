@@ -242,7 +242,7 @@ export default {
       await api.post('/testcases', {
         title: this.newTestCase.title,
         description: this.newTestCase.description,
-        requirement: { id: this.newTestCase.requirementId }
+        requirementId: this.newTestCase.requirementId // 直接发送requirementId而不是嵌套对象
       });
       this.newTestCase = { title: '', description: '', requirementId: '' };
       await this.loadTestCases();

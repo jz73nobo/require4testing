@@ -6,7 +6,11 @@ import com.you.require4testing.domain.User;
 import com.you.require4testing.repository.RequirementRepository;
 import com.you.require4testing.repository.TestCaseRepository;
 import com.you.require4testing.repository.UserRepository;
+
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +27,7 @@ public class TestCaseController {
     private final UserRepository userRepository; // 添加UserRepository
 
     @PostMapping
-    public TestCase create(@RequestBody TestCase tc, Authentication authentication) {
+    public TestCase create(@RequestBody TestCaseRequest request, Authentication authentication) {
         // 从认证信息中获取当前用户
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String username = userDetails.getUsername();
@@ -32,21 +36,32 @@ public class TestCaseController {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
         
-        // 验证需求是否存在 - 修改这里
-        Long requirementId = tc.getRequirement() != null ? tc.getRequirement().getId() : null;
-        if (requirementId == null) {
+        // 验证需求是否存在
+        if (request.getRequirementId() == null) {
             throw new RuntimeException("Requirement ID is required");
         }
         
-        Requirement requirement = reqRepo.findById(requirementId)
-                .orElseThrow(() -> new RuntimeException("Requirement not found with id: " + requirementId));
+        Requirement requirement = reqRepo.findById(request.getRequirementId())
+                .orElseThrow(() -> new RuntimeException("Requirement not found with id: " + request.getRequirementId()));
         
-        // 设置测试用例属性
+        // 创建测试用例对象
+        TestCase tc = new TestCase();
+        tc.setTitle(request.getTitle());
+        tc.setDescription(request.getDescription());
         tc.setRequirement(requirement);
-        tc.setCreatedBy(user.getId()); // 设置创建者ID
+        tc.setCreatedBy(user.getId());
         tc.setCreatedAt(OffsetDateTime.now());
         
         return repo.save(tc);
+    }
+
+    // 添加请求DTO
+    @Getter
+    @Setter
+    public static class TestCaseRequest {
+        private String title;
+        private String description;
+        private Long requirementId;
     }
 
     @GetMapping
