@@ -8,7 +8,6 @@ A simple Test Management System built for the IPWA02-01 case study.
 - Test run creation
 - Assignment of test cases to testers
 - Tester result submission
-- Authentication & Role-based access (JWT)
 
 ## Tech Stack
 - Backend: Spring Boot (Web, JPA, Security, Flyway)
